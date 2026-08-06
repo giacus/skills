@@ -18,6 +18,8 @@ SKILLS_ROOT = REPO_ROOT / "skills"
 NAME_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 INLINE_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 REFERENCE_LINK_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*(\S+)", re.MULTILINE)
+
+
 def secret_patterns() -> list[tuple[str, re.Pattern[str]]]:
     """Construct signatures without embedding sample credentials in this file."""
 
@@ -106,43 +108,61 @@ def has_symlink_component(path: Path, boundary: Path) -> bool:
     return boundary.is_symlink()
 
 
+def validate_markdown_file_links(
+    markdown_path: Path,
+    boundary: Path,
+    errors: list[str],
+) -> None:
+    text = markdown_path.read_text(encoding="utf-8")
+    raw_targets = INLINE_LINK_PATTERN.findall(text)
+    raw_targets.extend(REFERENCE_LINK_PATTERN.findall(text))
+
+    for raw_target in raw_targets:
+        target = unquote(extract_link_target(raw_target))
+        parsed = urlparse(target)
+        if parsed.scheme or target.startswith(("#", "//")):
+            continue
+        relative_target = target.split("#", 1)[0]
+        if not relative_target:
+            continue
+        if relative_target.startswith("/"):
+            add_error(
+                errors,
+                f"{markdown_path.relative_to(REPO_ROOT)}: local link must be relative: {target}",
+            )
+            continue
+
+        resolved = (markdown_path.parent / relative_target).resolve()
+        try:
+            resolved.relative_to(boundary.resolve())
+        except ValueError:
+            add_error(
+                errors,
+                f"{markdown_path.relative_to(REPO_ROOT)}: link escapes allowed boundary: {target}",
+            )
+            continue
+        if not resolved.exists():
+            add_error(
+                errors,
+                f"{markdown_path.relative_to(REPO_ROOT)}: missing linked file: {target}",
+            )
+
+
 def validate_markdown_links(skill_dir: Path, errors: list[str]) -> None:
     for markdown_path in sorted(skill_dir.rglob("*.md")):
         if has_symlink_component(markdown_path, skill_dir):
             continue
-        text = markdown_path.read_text(encoding="utf-8")
-        raw_targets = INLINE_LINK_PATTERN.findall(text)
-        raw_targets.extend(REFERENCE_LINK_PATTERN.findall(text))
+        validate_markdown_file_links(markdown_path, skill_dir, errors)
 
-        for raw_target in raw_targets:
-            target = unquote(extract_link_target(raw_target))
-            parsed = urlparse(target)
-            if parsed.scheme or target.startswith(("#", "//")):
-                continue
-            relative_target = target.split("#", 1)[0]
-            if not relative_target:
-                continue
-            if relative_target.startswith("/"):
-                add_error(
-                    errors,
-                    f"{markdown_path.relative_to(REPO_ROOT)}: local link must be relative: {target}",
-                )
-                continue
 
-            resolved = (markdown_path.parent / relative_target).resolve()
-            try:
-                resolved.relative_to(skill_dir.resolve())
-            except ValueError:
-                add_error(
-                    errors,
-                    f"{markdown_path.relative_to(REPO_ROOT)}: link escapes skill directory: {target}",
-                )
-                continue
-            if not resolved.exists():
-                add_error(
-                    errors,
-                    f"{markdown_path.relative_to(REPO_ROOT)}: missing linked file: {target}",
-                )
+def validate_repository_markdown_links(errors: list[str]) -> None:
+    for markdown_path in sorted(REPO_ROOT.rglob("*.md")):
+        relative_parts = markdown_path.relative_to(REPO_ROOT).parts
+        if ".git" in relative_parts or relative_parts[0] == "skills":
+            continue
+        if has_symlink_component(markdown_path, REPO_ROOT):
+            continue
+        validate_markdown_file_links(markdown_path, REPO_ROOT, errors)
 
 
 def validate_skills(errors: list[str]) -> None:
@@ -247,6 +267,29 @@ def validate_executable_bits(files: list[Path], errors: list[str]) -> None:
             add_error(errors, f"{path.relative_to(REPO_ROOT)}: shebang file is not executable")
 
 
+def validate_yaml_files(files: list[Path], errors: list[str]) -> None:
+    for path in files:
+        if path.suffix not in {".yaml", ".yml"}:
+            continue
+        try:
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, yaml.YAMLError) as exc:
+            add_error(errors, f"{path.relative_to(REPO_ROOT)}: invalid YAML: {exc}")
+
+
+def validate_unicode_controls(files: list[Path], errors: list[str]) -> None:
+    control_pattern = re.compile(r"[\u202a-\u202e\u2066-\u2069]")
+    for path in files:
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        match = control_pattern.search(text)
+        if match:
+            line = text.count("\n", 0, match.start()) + 1
+            add_error(errors, f"{path.relative_to(REPO_ROOT)}:{line}: hidden Unicode control")
+
+
 def validate_secrets(files: list[Path], errors: list[str]) -> None:
     patterns = secret_patterns()
     assignment_prefix = r"(?:[A-Za-z][A-Za-z0-9]*[_-])*"
@@ -277,14 +320,67 @@ def validate_secrets(files: list[Path], errors: list[str]) -> None:
             add_error(errors, f"{path.relative_to(REPO_ROOT)}:{line}: possible assigned secret")
 
 
+def validate_public_artifacts(files: list[Path], errors: list[str]) -> None:
+    patterns = [
+        (
+            "personal email address",
+            re.compile(
+                r"\b[\w.+-]+@(?:gmail|icloud|outlook|hotmail|yahoo)\.[a-z]+\b",
+                re.IGNORECASE,
+            ),
+        ),
+        ("absolute macOS home path", re.compile(r"/Users/[A-Za-z0-9._-]+")),
+        ("absolute Linux home path", re.compile(r"/home/[A-Za-z0-9._-]+")),
+    ]
+    for path in files:
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+
+        for label, pattern in patterns:
+            match = pattern.search(text)
+            if match:
+                line = text.count("\n", 0, match.start()) + 1
+                add_error(
+                    errors,
+                    f"{path.relative_to(REPO_ROOT)}:{line}: public artifact violation ({label})",
+                )
+
+
+def validate_public_identity(errors: list[str]) -> None:
+    requirements = {
+        REPO_ROOT / "README.md": "[@giacus](https://github.com/giacus)",
+        REPO_ROOT / "LICENSE": re.compile(
+            r"^Copyright \(c\) \d{4}(?:-\d{4})? giacus$",
+            re.MULTILINE,
+        ),
+    }
+    for path, requirement in requirements.items():
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            add_error(errors, f"{path.relative_to(REPO_ROOT)}: cannot verify public identity: {exc}")
+            continue
+
+        matches = requirement in text if isinstance(requirement, str) else requirement.search(text)
+        if not matches:
+            add_error(errors, f"{path.relative_to(REPO_ROOT)}: public identity must use giacus")
+
+
 def main() -> int:
     errors: list[str] = []
     validate_no_symlinks(errors)
     validate_skills(errors)
+    validate_repository_markdown_links(errors)
     files = repository_files()
     validate_shell_scripts(files, errors)
     validate_executable_bits(files, errors)
+    validate_yaml_files(files, errors)
+    validate_unicode_controls(files, errors)
     validate_secrets(files, errors)
+    validate_public_artifacts(files, errors)
+    validate_public_identity(errors)
 
     if errors:
         print("Skill validation failed:", file=sys.stderr)

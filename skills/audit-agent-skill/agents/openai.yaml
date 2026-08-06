@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Agent Skill"
+  short_description: "Review third-party skills before trusting them"
+  default_prompt: "Use $audit-agent-skill to review this skill repository before I install it."

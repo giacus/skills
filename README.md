@@ -44,6 +44,7 @@ Python 3.10 or newer, and PyYAML (CI pins PyYAML 6.0.2).
 | Skill | Purpose | Example prompt |
 | --- | --- | --- |
 | `audit-agent-skill` | Review a skill repository before installing, updating, forking, or allowlisting it. | "Use `audit-agent-skill` to review these three upstream skills before I add them globally." |
+| `write-durable-code-comments` | Experimentally preserve verified, otherwise invisible local invariants during implementation. | "Use `write-durable-code-comments` while implementing this change, then report its proposed comments for review." |
 
 ## Harnesses and Installation State
 

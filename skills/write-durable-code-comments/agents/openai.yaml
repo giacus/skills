@@ -1,0 +1,7 @@
+interface:
+  display_name: "Write Durable Code Comments"
+  short_description: "Preserve verified hidden invariants in code"
+  default_prompt: "Use $write-durable-code-comments while implementing this change, and treat each proposed comment as experimental."
+
+policy:
+  allow_implicit_invocation: false

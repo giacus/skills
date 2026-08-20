@@ -13,3 +13,5 @@ installed or allowlisted elsewhere.
 - Preserve attribution and required license notices for any intentionally
   divergent maintained fork.
 - Run `./scripts/validate-skills.sh` and review the complete diff after changes.
+- Run validation locally before pushing. GitHub Actions must remain
+  `workflow_dispatch`-only and is an optional remote safety signal.

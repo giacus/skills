@@ -18,6 +18,9 @@ SKILLS_ROOT = REPO_ROOT / "skills"
 NAME_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 INLINE_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 REFERENCE_LINK_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*(\S+)", re.MULTILINE)
+AVAILABLE_SKILLS_HEADING = re.compile(r"^## Available Skills\s*$", re.MULTILINE)
+NEXT_HEADING = re.compile(r"^##\s+", re.MULTILINE)
+INVENTORY_ROW_PATTERN = re.compile(r"^\s*\|\s*\[([^\]]+)\]\(([^)]+)\)\s*\|", re.MULTILINE)
 
 
 def secret_patterns() -> list[tuple[str, re.Pattern[str]]]:
@@ -165,10 +168,55 @@ def validate_repository_markdown_links(errors: list[str]) -> None:
         validate_markdown_file_links(markdown_path, REPO_ROOT, errors)
 
 
-def validate_skills(errors: list[str]) -> None:
+def validate_readme_skill_inventory(discovered_names: set[str], errors: list[str]) -> None:
+    """Require README's Available Skills table to be an exact skill index."""
+
+    readme_path = REPO_ROOT / "README.md"
+    try:
+        text = readme_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        add_error(errors, f"README.md: cannot read skill inventory: {exc}")
+        return
+
+    heading = AVAILABLE_SKILLS_HEADING.search(text)
+    if heading is None:
+        add_error(errors, "README.md: missing '## Available Skills' inventory")
+        return
+
+    next_heading = NEXT_HEADING.search(text, heading.end())
+    section = text[heading.end() : next_heading.start() if next_heading else len(text)]
+    entries = INVENTORY_ROW_PATTERN.findall(section)
+
+    listed_names: list[str] = []
+    for label, raw_target in entries:
+        name = label.strip().strip("`")
+        target = unquote(extract_link_target(raw_target))
+        listed_names.append(name)
+        expected_target = f"skills/{name}/SKILL.md"
+        if target != expected_target:
+            add_error(
+                errors,
+                f"README.md: skill inventory target for '{name}' is '{target}', expected '{expected_target}'",
+            )
+
+    counts: dict[str, int] = {}
+    for name in listed_names:
+        counts[name] = counts.get(name, 0) + 1
+    for name, count in sorted(counts.items()):
+        if count > 1:
+            add_error(errors, f"README.md: duplicate skill inventory entry '{name}' ({count} links)")
+
+    listed = set(listed_names)
+    for name in sorted(discovered_names - listed):
+        add_error(errors, f"README.md: missing skill inventory entry '{name}'")
+    for name in sorted(listed - discovered_names):
+        add_error(errors, f"README.md: extra skill inventory entry '{name}'")
+
+
+def validate_skills(errors: list[str]) -> set[str]:
     if not SKILLS_ROOT.is_dir():
         add_error(errors, "skills/: directory is missing")
-        return
+        return set()
 
     skill_dirs = sorted(
         path
@@ -177,7 +225,7 @@ def validate_skills(errors: list[str]) -> None:
     )
     if not skill_dirs:
         add_error(errors, "skills/: no skill directories found")
-        return
+        return set()
 
     names: dict[str, Path] = {}
     for skill_dir in skill_dirs:
@@ -218,6 +266,8 @@ def validate_skills(errors: list[str]) -> None:
             )
 
         validate_markdown_links(skill_dir, errors)
+
+    return set(names)
 
 
 def repository_files() -> list[Path]:
@@ -371,7 +421,8 @@ def validate_public_identity(errors: list[str]) -> None:
 def main() -> int:
     errors: list[str] = []
     validate_no_symlinks(errors)
-    validate_skills(errors)
+    discovered_names = validate_skills(errors)
+    validate_readme_skill_inventory(discovered_names, errors)
     validate_repository_markdown_links(errors)
     files = repository_files()
     validate_shell_scripts(files, errors)

@@ -9,7 +9,12 @@
 3. Add only resources the skill uses. Link references with relative paths.
 4. Document required tools and any harness-specific behavior.
 5. Review scripts and mark directly executable files executable.
-6. Run `./scripts/validate-skills.sh` before opening a pull request.
+6. Add or update the skill's row in the README `Available Skills` inventory,
+   linking exactly to `skills/<skill-name>/SKILL.md`.
+7. Run `./scripts/validate-skills.sh` before opening a pull request.
+
+The README inventory is validated against the skill frontmatter: every skill
+must appear exactly once, with the matching name and canonical link target.
 
 Do not commit credentials, confidential data, copied third-party skills, generated
 installation state, or project-specific rules that belong in the project itself.

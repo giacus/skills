@@ -14,6 +14,11 @@ source that you can read, review, and install directly with the standard
 | --- | --- | --- |
 | [`audit-agent-skill`](skills/audit-agent-skill/SKILL.md) | Review a skill repository before installing, updating, forking, or allowlisting it. | "Use `audit-agent-skill` to review these upstream skills before I install them." |
 | [`write-durable-code-comments`](skills/write-durable-code-comments/SKILL.md) | Experimentally preserve verified, otherwise invisible local invariants during implementation. | "Use `write-durable-code-comments` while implementing this change, then report retained comments for review." |
+| [`focused-code-review`](skills/focused-code-review/SKILL.md) | Review changes against repository standards and the available specification. | "Use `focused-code-review` for this task." |
+| [`focused-debugging`](skills/focused-debugging/SKILL.md) | Diagnose uncertain bugs and performance regressions using representative evidence. | "Use `focused-debugging` for this task." |
+| [`behavioral-tdd`](skills/behavioral-tdd/SKILL.md) | Implement explicitly requested test-first work through public interfaces. | "Use `behavioral-tdd` for this task." |
+| [`find-agent-skills`](skills/find-agent-skills/SKILL.md) | Find suitable agent skills for an explicit discovery request or capability gap. | "Use `find-agent-skills` for this task." |
+| [`portless-workflows`](skills/portless-workflows/SKILL.md) | Configure and troubleshoot named local development URLs. | "Use `portless-workflows` for this task." |
 
 Read a skill's `SKILL.md` and adjacent files before installing it. Skills are
 operational instructions for an agent and should be treated as executable

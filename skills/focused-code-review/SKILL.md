@@ -1,6 +1,6 @@
 ---
 name: focused-code-review
-description: Review a PR, branch, or working-tree change against repository standards and the available specification. Keep standards and specification findings separate; resolve the comparison from the request or verified PR metadata.
+description: Review a PR, branch, working-tree change, or changes since a named reference against repository standards and the available specification. Keep standards and specification findings separate; resolve the comparison from the request or verified PR metadata.
 ---
 
 Two-axis review of the scoped PR, branch, or working-tree diff:

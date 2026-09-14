@@ -1,6 +1,6 @@
 ---
 name: behavioral-tdd
-description: Implement features or fixes with a test-first red/green workflow when the user requests TDD or test-first development. Use established public interfaces; ordinary integration-test requests alone do not require this workflow.
+description: Implement features or fixes with a test-first red/green workflow when the user requests TDD, test-first, or red-green-refactor development. Use established public interfaces; ordinary integration-test requests alone do not require this workflow.
 ---
 
 # Behavioral TDD

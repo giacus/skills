@@ -13,7 +13,8 @@
 # At the end, captured values are printed as KEY=VALUE for the agent to parse.
 #
 # `capture` prints its value back to the terminal, where the agent reads it,
-# so capture observations, and leave signing in to the user as a `step`.
+# so capture only redacted observations, never credentials, tokens, personal
+# data, or sensitive paths. Leave signing in to the user as a `step`.
 
 set -euo pipefail
 
@@ -35,6 +36,7 @@ step "Open the app at http://localhost:3000 and sign in."
 
 capture ERRORED "Click the 'Export' button. Did it throw an error? (y/n)"
 
+printf '\nRedact credentials, tokens, personal data, and sensitive paths.\n'
 capture ERROR_MSG "Paste the error message (or 'none'):"
 
 # --- edit above ---------------------------------------------------------

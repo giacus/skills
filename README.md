@@ -20,6 +20,21 @@ source that you can read, review, and install directly with the standard
 | [`find-agent-skills`](skills/find-agent-skills/SKILL.md) | Find suitable agent skills for an explicit discovery request or capability gap. | "Use `find-agent-skills` for this task." |
 | [`portless-workflows`](skills/portless-workflows/SKILL.md) | Configure and troubleshoot named local development URLs. | "Use `portless-workflows` for this task." |
 
+## Maintained Derivatives
+
+These renamed skills intentionally diverge from reviewed upstream snapshots so
+their activation and operating boundaries fit this shared cross-project setup:
+
+| Maintained skill | Upstream source and original skill | Intentional divergence |
+| --- | --- | --- |
+| `focused-code-review` | `mattpocock/skills` `code-review` at `5c89081d4bbeb3d039a42093653f90bb698d780e` | Resolve the baseline from supplied context, include work-in-progress files, and continue standards review without requiring external issue-tracker setup. |
+| `focused-debugging` | `mattpocock/skills` `diagnosing-bugs` at `321658273cb1d20b76026717d027d505790106d4` | Keep reproduction evidence central while allowing labelled source analysis when a runnable loop is unavailable; rank evidence-supported hypotheses and minimise proportionately. |
+| `behavioral-tdd` | `mattpocock/skills` `tdd` at `321658273cb1d20b76026717d027d505790106d4` | Activate for explicit TDD or test-first work, not every integration-test request, and reuse established public seams without redundant confirmation. |
+| `find-agent-skills` | `vercel-labs/skills` `find-skills` at `773fb2c7bbf16781670a3520affc4abd0c6151ae` | Require explicit discovery intent or a concrete capability gap, and separate discovery from installation authority. |
+| `portless-workflows` | `vercel-labs/portless` `portless` at `2e87792c0da55ee514ce1d566045877f6d86cc24` | Split the monolithic guide into selective references and add approval boundaries without removing operational coverage. |
+
+The original licenses and attribution are retained with each maintained skill.
+
 Read a skill's `SKILL.md` and adjacent files before installing it. Skills are
 operational instructions for an agent and should be treated as executable
 supply-chain content.

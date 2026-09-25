@@ -42,7 +42,11 @@ Separate the requested scope from the changed files. If the spec requests an
 exhaustive review or repository-wide completion, a clean diff does not prove
 that unchanged areas were examined. Require a reconciled scope inventory and
 check the underlying evidence for retained as well as changed areas. Report
-unreviewed requirements as partial, even when all available checks pass.
+unreviewed requirements as partial, even when all available checks pass. The
+scope inventory may live in the task, PR or an accessible immutable artifact;
+do not require a permanent repository ledger. Check that removed historical
+reports remain recoverable and that current contracts, provenance and unresolved
+caveats survive in their authoritative homes.
 
 When tests change, or test quality is in scope, read
 [`references/test-evidence.md`](references/test-evidence.md). Inspect actual

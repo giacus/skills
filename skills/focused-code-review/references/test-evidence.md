@@ -37,3 +37,10 @@ parameter cases may share reasoning if all cases remain traceable. Challenge
 retained tests too; a blanket KEEP row for a file or subsystem is insufficient.
 Verify that known weak checks were resolved or honestly retained as uncertain.
 Do not promote a few spot checks into a claim that every case was reviewed.
+
+Keep case-specific decisions with the task or PR, bound to the reviewed revision.
+Review depth does not depend on a new tracked Markdown or JSON report. Verify
+that evidence is accessible and traceable; when a report leaves the active tree,
+check its immutable recovery reference. Preserve independent oracles and
+unresolved failure evidence, and promote lasting test contracts into existing
+guidance rather than making historical ledgers required onboarding.

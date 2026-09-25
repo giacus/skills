@@ -38,6 +38,17 @@ If no spec is available, continue the standards review and report that the Spec
 axis could not be assessed. Ask for context only when it materially affects the
 result; do not invent requirements or require issue-tracker setup.
 
+Separate the requested scope from the changed files. If the spec requests an
+exhaustive review or repository-wide completion, a clean diff does not prove
+that unchanged areas were examined. Require a reconciled scope inventory and
+check the underlying evidence for retained as well as changed areas. Report
+unreviewed requirements as partial, even when all available checks pass.
+
+When tests change, or test quality is in scope, read
+[`references/test-evidence.md`](references/test-evidence.md). Inspect actual
+setup, execution and assertions; green totals and test names are not evidence
+that a test can detect its claimed defect.
+
 ### 3. Identify the standards sources
 
 Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
@@ -74,6 +85,8 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 - The diff command and commit list.
 - The path or fetched contents of the spec.
+- The requested coverage inventory and completion evidence when the spec calls
+  for exhaustive work; explicitly distinguish this from the diff's file list.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report.
@@ -83,6 +96,12 @@ If the spec is missing, skip the Spec sub-agent and note this in the final repor
 Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings, because the two axes are deliberately separate (see _Why two axes_).
 
 End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes: that's the reranking the separation exists to prevent.
+
+State the actual review scope and any unassessed requirements. Zero findings in
+a sampled or diff-only review must not become certification of an exhaustive
+suite or repository review. Challenge generic evidence such as title-derived
+justifications, assertion counts and category-level KEEP labels before accepting
+a completion claim.
 
 ## Why two axes
 

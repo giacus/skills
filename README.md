@@ -14,7 +14,7 @@ source that you can read, review, and install directly with the standard
 | --- | --- | --- |
 | [`audit-agent-skill`](skills/audit-agent-skill/SKILL.md) | Review a skill repository before installing, updating, forking, or allowlisting it. | "Use `audit-agent-skill` to review these upstream skills before I install them." |
 | [`write-durable-code-comments`](skills/write-durable-code-comments/SKILL.md) | Experimentally preserve verified, otherwise invisible local invariants during implementation. | "Use `write-durable-code-comments` while implementing this change, then report retained comments for review." |
-| [`focused-code-review`](skills/focused-code-review/SKILL.md) | Review changes against repository standards and the available specification. | "Use `focused-code-review` for this task." |
+| [`focused-code-review`](skills/focused-code-review/SKILL.md) | Review changes against standards and specification, checking test evidence and the scope behind completion claims without requiring permanent repository ledgers. | "Use `focused-code-review` for this task." |
 | [`focused-debugging`](skills/focused-debugging/SKILL.md) | Diagnose uncertain bugs and performance regressions using representative evidence. | "Use `focused-debugging` for this task." |
 | [`behavioral-tdd`](skills/behavioral-tdd/SKILL.md) | Implement explicitly requested test-first work through public interfaces. | "Use `behavioral-tdd` for this task." |
 | [`find-agent-skills`](skills/find-agent-skills/SKILL.md) | Find suitable agent skills for an explicit discovery request or capability gap. | "Use `find-agent-skills` for this task." |
@@ -27,7 +27,7 @@ their activation and operating boundaries fit this shared cross-project setup:
 
 | Maintained skill | Upstream source and original skill | Intentional divergence |
 | --- | --- | --- |
-| `focused-code-review` | `mattpocock/skills` `code-review` at `5c89081d4bbeb3d039a42093653f90bb698d780e` | Resolve the baseline from supplied context, include work-in-progress files, and continue standards review without requiring external issue-tracker setup. |
+| `focused-code-review` | `mattpocock/skills` `code-review` at `5c89081d4bbeb3d039a42093653f90bb698d780e` | Resolve the baseline from supplied context, include work-in-progress files, review test evidence and completion scope, and continue standards review without requiring external issue-tracker setup. |
 | `focused-debugging` | `mattpocock/skills` `diagnosing-bugs` at `321658273cb1d20b76026717d027d505790106d4` | Keep reproduction evidence central while allowing labelled source analysis when a runnable loop is unavailable; rank evidence-supported hypotheses and minimise proportionately. |
 | `behavioral-tdd` | `mattpocock/skills` `tdd` at `321658273cb1d20b76026717d027d505790106d4` | Activate for explicit TDD or test-first work, not every integration-test request, and reuse established public seams without redundant confirmation. |
 | `find-agent-skills` | `vercel-labs/skills` `find-skills` at `773fb2c7bbf16781670a3520affc4abd0c6151ae` | Require explicit discovery intent or a concrete capability gap, and separate discovery from installation authority. |

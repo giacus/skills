@@ -8,7 +8,9 @@ Two-axis review of the scoped PR, branch, or working-tree diff:
 - **Standards**: does the code conform to this repo's documented coding standards?
 - **Spec**: does the code faithfully implement the originating issue / spec?
 
-Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
+Keep the axes separate. Review a small or tightly coupled change directly. For a
+large change with independent standards and specification evidence, use parallel
+sub-agents when available and permitted; aggregate their findings by axis.
 
 Use the repository's existing issue-tracker guidance and available tools when relevant. A missing `docs/agents/issue-tracker.md` is not a setup prerequisite for reviewing a supplied diff or spec.
 
@@ -57,7 +59,9 @@ that a test can detect its claimed defect.
 
 Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
 
-On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
+Use the Fowler code-smell heuristics (_Refactoring_, ch.3) below when relevant to
+the changed code. They supplement documented standards; they do not require a
+full catalogue pass for a documentation edit or a narrow fix. Two rules bind them:
 
 - **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
 - **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation. Like any standard here, skip anything tooling already enforces.
@@ -77,15 +81,18 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
 - **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
 
-### 4. Spawn both sub-agents in parallel
+### 4. Review each applicable axis
 
-**Standards sub-agent prompt** should include:
+Review directly or delegate according to the scope above. When delegating, give
+each reviewer the relevant evidence and keep the axes independent.
+
+**Standards reviewer context** should include:
 
 - The full diff command and commit list.
-- The list of standards-source files you found in step 3, **plus the smell baseline from step 3** pasted in full (the sub-agent has no other access to it).
+- The list of standards-source files you found in step 3, plus any relevant smell heuristics from step 3.
 - The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words."
 
-**Spec sub-agent prompt** should include:
+**Spec reviewer context** should include:
 
 - The diff command and commit list.
 - The path or fetched contents of the spec.
@@ -93,7 +100,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
   for exhaustive work; explicitly distinguish this from the diff's file list.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
 
-If the spec is missing, skip the Spec sub-agent and note this in the final report.
+If the spec is missing, skip the Spec review and note this in the final report.
 
 ### 5. Aggregate
 
